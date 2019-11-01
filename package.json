@@ -1,0 +1,19 @@
+{
+  "name": "neat-form-builder",
+  "version": "1.0.0",
+  "description": "Form builder for generating JSON used by NeatForm to build Android UI",
+  "author": "Elly Kitoto",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "iview": "^3.1.5",
+    "nuxt": "^2.0.0",
+    "vuedraggable": "^2.23.2"
+  },
+  "devDependencies": {}
+}
