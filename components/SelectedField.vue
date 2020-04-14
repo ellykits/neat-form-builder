@@ -118,6 +118,7 @@
         handler(v) {
           this.formValidate.name = v.fieldType + "_" + this.fieldIndex
           this.formValidate.index = this.fieldIndex
+          this.formValidate.fieldType = v.fieldType
         }
       },
       formValidate: {

@@ -13,7 +13,6 @@
                 event.dataTransfer.setData("fieldId", this.$store.state.fieldCounter)
                 event.dataTransfer.setData("fieldType", this.type)
                 event.dataTransfer.setData("fieldIcon", this.icon)
-                this.$store.commit("INCREMENT_FIELD_COUNTER")
             }
         }
     }

@@ -28,7 +28,7 @@
     components: {SelectedField},
     methods: {
       addFieldStep(event) {
-        const fieldId = faker.random.uuid;
+        const fieldId = faker.random.uuid();
         const fieldTypeId = event.dataTransfer.getData("fieldId");
         const fieldType = event.dataTransfer.getData("fieldType");
         const fieldIcon = event.dataTransfer.getData("fieldIcon");
