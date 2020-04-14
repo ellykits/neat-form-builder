@@ -3,7 +3,7 @@
     <div class="selected-field-row">
       <div v-on:click="showFieldProperties" id="left-element">
         <p><span><Icon class="handle" type="md-reorder" size="18"/></span>
-          <span><Icon :type="fieldIcon" size="18"/></span> {{formValidate.name}}
+          <span><Icon :type="field.fieldIcon" size="18"/></span> {{formValidate.name}}
         </p>
       </div>
       <div id="right-element">
@@ -39,7 +39,7 @@
         <Input v-model="formValidate.name" placeholder="Name/Key"></Input>
       </FormItem>
       <FormItem label="Type" prop="type">
-        <Input disabled v-model="formValidate.type" placeholder="Type"></Input>
+        <Input disabled v-model="formValidate.fieldType" placeholder="Type"></Input>
       </FormItem>
       <FormItem label="Binding fields" prop="subjects">
         <Input v-model="formValidate.subjects" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
@@ -75,77 +75,102 @@
   </div>
 </template>
 <script>
-    export default {
-        name: "SelectedField",
-        props: {
-            fieldType: {
-                type: String,
-                required: true,
-            },
-            fieldIcon: {
-                type: String,
-                required: true,
-            },
-            fieldId: {
-                type: String,
-                required: true,
-            },
+  import rfdc from 'rfdc'
+
+  export default {
+    name: "SelectedField",
+    props: {
+      fieldIndex: {
+        type: Number,
+        required: true
+      },
+      field: {
+        type: Object,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        isFieldPropertiesShown: true,
+        isDuplicatePopupShown: false,
+        isDeletePopupShown: false,
+        formValidate: {
+          index: this.fieldIndex,
+          name: this.field.fieldType + "_" + this.fieldIndex,
+          type: this.field.fieldType,
+          subjects: '',
+          validation: '',
+          metadata: [],
+          attributes: [],
+          isRequired: false,
+          errorMessage: ''
         },
-        data() {
-            return {
-                isFieldPropertiesShown: true,
-                isDuplicatePopupShown: false,
-                isDeletePopupShown: false,
-                formValidate: {
-                    name: this.fieldType + "_" + this.fieldId,
-                    type: this.fieldType,
-                    subjects: '',
-                    validation: '',
-                    metadata: [],
-                    attributes: [],
-                    isRequired: false,
-                    errorMessage: ''
-                },
-                ruleValidate: {
-                    name: [
-                        {required: true, message: 'The name cannot be empty', trigger: 'blur'}
-                    ]
-                }
-            }
-        },
-        methods: {
-            handleSubmit(name) {
-                this.$refs[name].validate((valid) => {
-                    if (valid) {
-                        this.$Message.success('Success!');
-                    } else {
-                        this.$Message.error('Fail!');
-                    }
-                })
-                this.isFieldPropertiesShown = false
-            },
-            handleReset(name) {
-                this.$refs[name].resetFields();
-            },
-
-            showFieldProperties() {
-                this.isFieldPropertiesShown = !this.isFieldPropertiesShown
-            },
-
-            closeDuplicatePopup() {
-                this.isDuplicatePopupShown = false
-            },
-            closeDeletePopup() {
-                this.isDeletePopupShown = false
-            },
-            deleteField() {
-
-            },
-            duplicateField() {
-
-            }
+        ruleValidate: {
+          name: [
+            {required: true, message: 'The name cannot be empty', trigger: 'blur'}
+          ]
         }
+      }
+    },
+    watch: {
+      field: {
+        deep: true,
+        handler(v) {
+          this.formValidate.name = v.fieldType + "_" + this.fieldIndex
+          this.formValidate.index = this.fieldIndex
+        }
+      },
+      formValidate: {
+        deep: true,
+        handler(v) {
+          this.updateFormOutput(v)
+        }
+      }
+    },
+    mounted() {
+      this.updateFormOutput(this.formValidate)
+    },
+    methods: {
+      handleSubmit(name) {
+        this.$refs[name].validate((valid) => {
+          if (valid) {
+            this.$Message.success('Success!');
+          } else {
+            this.$Message.error('Fail!');
+          }
+        })
+        this.isFieldPropertiesShown = false
+      },
+      updateFormOutput(newFormValidate) {
+        if (newFormValidate) {
+          this.$store.dispatch('formOutput/updateField', newFormValidate)
+          this.$store.dispatch('formOutput/updateResult', this.$store.state.fieldPlayGround.generatedFormFields)
+        }
+      },
+      handleReset(name) {
+        this.$refs[name].resetFields();
+      },
+
+      showFieldProperties() {
+        this.isFieldPropertiesShown = !this.isFieldPropertiesShown
+      },
+
+      closeDuplicatePopup() {
+        this.isDuplicatePopupShown = false
+      },
+      closeDeletePopup() {
+        this.isDeletePopupShown = false
+      },
+      deleteField() {
+        let newField = rfdc(this.field)
+        newField.index = this.fieldIndex
+        this.$store.dispatch('fieldPlayGround/removeField', newField)
+      },
+      duplicateField() {
+
+      }
     }
+  }
 </script>
 
 <style scoped>

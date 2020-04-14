@@ -1,4 +1,4 @@
-export const state = () => ({
+const state = () => ({
   supportedFormFields: [
     {id: 1, icon: "ios-create-outline", type: "Text input"},
     {id: 2, icon: "md-checkbox", type: "Checkbox"},
@@ -12,22 +12,20 @@ export const state = () => ({
     {id: 10, icon: "md-locate", type: "Location field"},
     {id: 11, icon: "md-information-circle", type: "Toaster note"}
   ],
-
-  generatedFormFields: [],
-
-  fieldCounter: 1
 })
 
-export const mutations = {
+const actions = {}
 
+const mutations = {
   ADD_SUPPORTED_FORM_FIELD(state, field) {
     state.supportedFormFields.push(field)
   },
 
   ADD_SELECTED_FORM_FIELD(state, field) {
     state.generatedFormFields.push(field)
-  },
-  INCREMENT_FIELD_COUNTER(state) {
-    state.fieldCounter++
   }
+}
+
+export {
+  state, mutations, actions
 }
