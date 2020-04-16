@@ -11,9 +11,6 @@ const getters = {
 const actions = {
   updateResult({commit}, data) {
     commit('updateResult', data)
-  },
-  addField({commit}, data, step) {
-    commit('addField', data, step)
   }
 }
 
