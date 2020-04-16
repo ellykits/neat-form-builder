@@ -26,6 +26,7 @@ const mutations = {
     } else {
       state.result.push(copyField)
     }
+    state.result = JSON.parse(JSON.stringify(state.result))
   },
 
   updateResult(state, data) {

@@ -63,10 +63,27 @@
           </Panel>
           <Panel name="2">
             Metadata
-            <p slot="content">Form metadata</p>
+            <div slot="content">Form metadata
+              <JsonPropHolder @onAddFieldProperty="onAddFieldMetadata"
+                              @onDeleteFieldProperty="onDeleteFieldMetadata"></JsonPropHolder>
+            </div>
           </Panel>
+          <Panel name="3">
+            Field Properties
+            <div slot="content">Field Properties
+              <JsonPropHolder @onAddFieldProperty="onAddFieldProperty"
+                              @onDeleteFieldProperty="onDeleteFieldProperty"></JsonPropHolder>
+            </div>
+          </Panel>
+<!--          <Panel name="4">-->
+<!--            Field Validation-->
+<!--            <div slot="content">Field Validation-->
+<!--              <JsonPropHolder :template="{'condition':'', 'message':''}"></JsonPropHolder>-->
+<!--            </div>-->
+<!--          </Panel>-->
         </Collapse>
       </FormItem>
+
       <FormItem>
         <Button type="primary" @click="handleSubmit('formValidate')">Done</Button>
         <Button @click="handleReset('formValidate')" style="margin-left: 8px">Reset</Button>
@@ -75,8 +92,11 @@
   </div>
 </template>
 <script>
+  import JsonPropHolder from "./partial/JsonPropHolder";
+
   export default {
     name: "SelectedField",
+    components: {JsonPropHolder},
     props: {
       fieldIndex: {
         type: Number,
@@ -92,17 +112,20 @@
         isFieldPropertiesShown: true,
         isDuplicatePopupShown: false,
         isDeletePopupShown: false,
+        properties: [],
+        property: {},
         formValidate: {
           index: this.fieldIndex,
           fieldId: this.field.fieldId,
           name: this.field.fieldType + "_" + this.fieldIndex,
           type: this.field.fieldType,
           subjects: '',
-          validation: '',
-          metadata: [],
+          validation: [],
+          metadata: {},
           attributes: [],
           isRequired: false,
-          errorMessage: ''
+          errorMessage: '',
+          property: {},
         },
         ruleValidate: {
           name: [
@@ -124,6 +147,7 @@
       formValidate: {
         deep: true,
         handler(v) {
+          console.log(v)
           this.updateFormOutput(v)
         }
       }
@@ -132,6 +156,22 @@
       this.updateFormOutput(this.formValidate)
     },
     methods: {
+      onAddFieldMetadata(property) {
+        this.formValidate.metadata[property.key] = property.value
+        this.updateFormOutput(this.formValidate)
+      },
+      onDeleteFieldMetadata(property) {
+        delete this.formValidate.metadata[property.key]
+        this.updateFormOutput(this.formValidate)
+      },
+      onAddFieldProperty(property) {
+        this.formValidate.property[property.key] = property.value
+        this.updateFormOutput(this.formValidate)
+      },
+      onDeleteFieldProperty(property) {
+        delete this.formValidate.property[property.key]
+        this.updateFormOutput(this.formValidate)
+      },
       handleSubmit(name) {
         this.$refs[name].validate((valid) => {
           if (valid) {
@@ -150,11 +190,9 @@
       handleReset(name) {
         this.$refs[name].resetFields();
       },
-
       showFieldProperties() {
         this.isFieldPropertiesShown = !this.isFieldPropertiesShown
       },
-
       closeDuplicatePopup() {
         this.isDuplicatePopupShown = false
       },
