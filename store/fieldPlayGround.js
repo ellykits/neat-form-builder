@@ -20,13 +20,11 @@ const actions = {
 
 const mutations = {
   addField(state, field) {
-    state.fieldCounter++
-    field.index = state.fieldCounter
     state.generatedFormFields.push(field)
   },
   removeField(state, field) {
     state.generatedFormFields = state.generatedFormFields.filter(function (value, index, arr) {
-      return field.index !== index
+      return field.fieldId !== value.fieldId
     })
   }
 }

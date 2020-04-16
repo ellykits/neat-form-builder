@@ -20,7 +20,7 @@ const actions = {
 const mutations = {
   updateField(state, field) {
     let copyField = Object.assign({}, field)
-    const item = state.result.find(item => item.index === copyField.index);
+    const item = state.result.find(item => item.fieldId === copyField.fieldId);
     if (item) {
       Object.assign(item, copyField);
     } else {
@@ -31,7 +31,7 @@ const mutations = {
   updateResult(state, data) {
     if (data.length !== state.result.length) {
       for (let g = 0; g < state.result.length; g++) {
-        let isFound = data.find(item => item.index === state.result[g]['index'])
+        let isFound = data.find(item => item.fieldId === state.result[g]['fieldId'])
         if (!isFound) {
           state.result.splice(g, 1)
         }

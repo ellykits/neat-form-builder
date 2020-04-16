@@ -75,8 +75,6 @@
   </div>
 </template>
 <script>
-  import rfdc from 'rfdc'
-
   export default {
     name: "SelectedField",
     props: {
@@ -96,6 +94,7 @@
         isDeletePopupShown: false,
         formValidate: {
           index: this.fieldIndex,
+          fieldId: this.field.fieldId,
           name: this.field.fieldType + "_" + this.fieldIndex,
           type: this.field.fieldType,
           subjects: '',
@@ -119,6 +118,7 @@
           this.formValidate.name = v.fieldType + "_" + this.fieldIndex
           this.formValidate.index = this.fieldIndex
           this.formValidate.fieldType = v.fieldType
+          this.formValidate.fieldId = v.fieldId
         }
       },
       formValidate: {
@@ -145,7 +145,6 @@
       updateFormOutput(newFormValidate) {
         if (newFormValidate) {
           this.$store.dispatch('formOutput/updateField', newFormValidate)
-          this.$store.dispatch('formOutput/updateResult', this.$store.state.fieldPlayGround.generatedFormFields)
         }
       },
       handleReset(name) {
@@ -163,9 +162,9 @@
         this.isDeletePopupShown = false
       },
       deleteField() {
-        let newField = rfdc(this.field)
-        newField.index = this.fieldIndex
-        this.$store.dispatch('fieldPlayGround/removeField', newField)
+        let copyField = Object.assign({}, this.field)
+        this.$store.dispatch('fieldPlayGround/removeField', copyField)
+        this.$store.dispatch('formOutput/updateResult', this.$store.state.fieldPlayGround.generatedFormFields)
       },
       duplicateField() {
 
