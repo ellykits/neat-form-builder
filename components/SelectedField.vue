@@ -3,7 +3,7 @@
     <div class="selected-field-row">
       <div v-on:click="showFieldProperties" id="left-element">
         <p><span><Icon class="handle" type="md-reorder" size="18"/></span>
-          <span><Icon :type="field.fieldIcon" size="18"/></span> {{formValidate.name}}
+          <span><Icon :type="field.fieldIcon" size="18"/></span> {{field.name}}
         </p>
       </div>
       <div id="right-element">
@@ -33,27 +33,27 @@
       </div>
       <div id="no-content"></div>
     </div>
-    <Form class="selected-field-properties" slot="content" ref="formValidate" :model="formValidate"
+    <Form class="selected-field-properties" slot="content" ref="formValidate" :model="field"
           :rules="ruleValidate" :label-width="180" v-if="isFieldPropertiesShown === true">
       <FormItem label="Name" prop="name">
-        <Input v-model="formValidate.name" placeholder="Name/Key"></Input>
+        <Input v-model="field.name" placeholder="Name/Key"></Input>
       </FormItem>
       <FormItem label="Type" prop="type">
-        <Input disabled v-model="formValidate.fieldType" placeholder="Type"></Input>
+        <Input disabled v-model="field.fieldType" placeholder="Type"></Input>
       </FormItem>
       <FormItem label="Binding fields" prop="subjects">
-        <Input v-model="formValidate.subjects" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
+        <Input v-model="field.subjects" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
                placeholder="(Comma separated field:data_type values e.g age:number, dob:map)"></Input>
       </FormItem>
       <FormItem label="Validation" prop="validation">
-        <Input v-model="formValidate.validation" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
-               placeholder="Validation(s) performed on the field; separated by semicolon"></Input>
+        <!--        <Input v-model="formValidate.validation" type="textarea" :autosize="{minRows: 2,maxRows: 5}"-->
+        <!--               placeholder="Validation(s) performed on the field; separated by semicolon"></Input>-->
       </FormItem>
       <FormItem label="" prop="isRequired">
-        <Checkbox v-model="formValidate.isRequired">Required?</Checkbox>
+        <Checkbox v-model="field.isRequired">Required?</Checkbox>
       </FormItem>
-      <FormItem v-if="formValidate.isRequired === true" label="Error message" prop="errorMessage">
-        <Input v-model="formValidate.errorMessage" placeholder="Error message when value is not filled"></Input>
+      <FormItem v-if="field.isRequired === true" label="Error message" prop="errorMessage">
+        <Input v-model="field.errorMessage" placeholder="Error message when value is not filled"></Input>
       </FormItem>
       <FormItem label="Other attributes" prop="subjects">
         <Collapse value="1" accordion>
@@ -75,12 +75,40 @@
                               @onDeleteFieldProperty="onDeleteFieldProperty"></JsonPropHolder>
             </div>
           </Panel>
-<!--          <Panel name="4">-->
-<!--            Field Validation-->
-<!--            <div slot="content">Field Validation-->
-<!--              <JsonPropHolder :template="{'condition':'', 'message':''}"></JsonPropHolder>-->
-<!--            </div>-->
-<!--          </Panel>-->
+          <Panel name="4">
+            Field Validation
+            <div slot="content">Field Validation
+              <Row>
+                <div v-for="(item, index) in validateArr">
+                  <div> {{`condition:${item.condition}`}}</div>
+                  <div> {{`message:${item.message}`}}</div>
+                  <div>
+                    <Poptip
+                      confirm
+                      width="300px"
+                      v-model="isDeletePopupForValidationShown"
+                      @on-ok="deleteValidation(item, index)"
+                      @on-cancel="closeDeleteValidationPopup"
+                      title="Are you sure you want to delete this step?"
+                    >
+                      <Icon class="delete-icon" type="md-trash" size="18"/>
+                    </Poptip>
+                  </div>
+                </div>
+              </Row>
+              <Row>
+                <Col span="7">
+                  <Input placeholder="condition" v-model="validate.condition"></Input>
+                </Col>
+                <Col span="7">
+                  <Input placeholder="message" v-model="validate.message"></Input>
+                </Col>
+              </Row>
+              <Row>
+                <Button @click="addValidationObject(validate)">Add</Button>
+              </Row>
+            </div>
+          </Panel>
         </Collapse>
       </FormItem>
 
@@ -102,31 +130,25 @@
         type: Number,
         required: true
       },
+      step: {
+        type: Object,
+        required: true
+      },
       field: {
         type: Object,
-        required: true,
-      },
+        required: true
+      }
     },
     data() {
       return {
         isFieldPropertiesShown: true,
         isDuplicatePopupShown: false,
         isDeletePopupShown: false,
+        isDeletePopupForValidationShown: false,
         properties: [],
         property: {},
-        formValidate: {
-          index: this.fieldIndex,
-          fieldId: this.field.fieldId,
-          name: this.field.fieldType + "_" + this.fieldIndex,
-          type: this.field.fieldType,
-          subjects: '',
-          validation: [],
-          metadata: {},
-          attributes: [],
-          isRequired: false,
-          errorMessage: '',
-          property: {},
-        },
+        validate: {},
+        validateArr: [],
         ruleValidate: {
           name: [
             {required: true, message: 'The name cannot be empty', trigger: 'blur'}
@@ -135,42 +157,39 @@
       }
     },
     watch: {
-      field: {
-        deep: true,
-        handler(v) {
-          this.formValidate.name = v.fieldType + "_" + this.fieldIndex
-          this.formValidate.index = this.fieldIndex
-          this.formValidate.fieldType = v.fieldType
-          this.formValidate.fieldId = v.fieldId
-        }
-      },
       formValidate: {
         deep: true,
         handler(v) {
-          console.log(v)
           this.updateFormOutput(v)
         }
       }
     },
-    mounted() {
-      this.updateFormOutput(this.formValidate)
-    },
     methods: {
+      addValidationObject(validationInput) {
+        this.step.fields[this.fieldIndex].validation.push(validationInput)
+        this.validateArr.push(validationInput)
+        this.validate = {}
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
+      },
+      deleteValidation(item, index){
+        this.step.fields[this.fieldIndex].validation.splice(index, 1)
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
+      },
       onAddFieldMetadata(property) {
-        this.formValidate.metadata[property.key] = property.value
-        this.updateFormOutput(this.formValidate)
+        this.step.fields[this.fieldIndex].metadata[property.key] = property.value
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
       onDeleteFieldMetadata(property) {
-        delete this.formValidate.metadata[property.key]
-        this.updateFormOutput(this.formValidate)
+        delete this.field.metadata[property.key]
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
       onAddFieldProperty(property) {
-        this.formValidate.property[property.key] = property.value
-        this.updateFormOutput(this.formValidate)
+        this.field.property[property.key] = property.value
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
       onDeleteFieldProperty(property) {
-        delete this.formValidate.property[property.key]
-        this.updateFormOutput(this.formValidate)
+        delete this.field.property[property.key]
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
       handleSubmit(name) {
         this.$refs[name].validate((valid) => {
@@ -182,9 +201,9 @@
         })
         this.isFieldPropertiesShown = false
       },
-      updateFormOutput(newFormValidate) {
-        if (newFormValidate) {
-          this.$store.dispatch('formOutput/updateField', newFormValidate)
+      updateFormOutput(fields) {
+        if (fields) {
+          this.step.fields = JSON.parse(JSON.stringify(fields))
         }
       },
       handleReset(name) {
@@ -199,10 +218,12 @@
       closeDeletePopup() {
         this.isDeletePopupShown = false
       },
+      closeDeleteValidationPopup() {
+        this.isDeletePopupForValidationShown = false
+      },
       deleteField() {
-        let copyField = Object.assign({}, this.field)
-        this.$store.dispatch('fieldPlayGround/removeField', copyField)
-        this.$store.dispatch('formOutput/updateResult', this.$store.state.fieldPlayGround.generatedFormFields)
+        this.step.fields.splice(this.fieldIndex, 1)
+        this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
       duplicateField() {
 

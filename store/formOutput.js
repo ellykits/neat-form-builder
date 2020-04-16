@@ -1,5 +1,5 @@
 const state = () => ({
-  result: []
+  result: {form: 'profile', rules_file: '', steps: [{title: '', fields: []}]}
 })
 
 const getters = {
@@ -9,37 +9,17 @@ const getters = {
 }
 
 const actions = {
-  updateField({commit}, field) {
-    commit('updateField', field)
-  },
   updateResult({commit}, data) {
     commit('updateResult', data)
+  },
+  addField({commit}, data, step) {
+    commit('addField', data, step)
   }
 }
 
 const mutations = {
-  updateField(state, field) {
-    let copyField = Object.assign({}, field)
-    const item = state.result.find(item => item.fieldId === copyField.fieldId);
-    if (item) {
-      Object.assign(item, copyField);
-    } else {
-      state.result.push(copyField)
-    }
-    state.result = JSON.parse(JSON.stringify(state.result))
-  },
-
-  updateResult(state, data) {
-    if (data.length !== state.result.length) {
-      for (let g = 0; g < state.result.length; g++) {
-        let isFound = data.find(item => item.fieldId === state.result[g]['fieldId'])
-        if (!isFound) {
-          state.result.splice(g, 1)
-        }
-
-      }
-    }
-
+  updateResult(state, result) {
+    state.result = JSON.parse(JSON.stringify(result))
   }
 }
 
