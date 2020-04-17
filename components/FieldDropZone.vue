@@ -72,8 +72,8 @@
     watch: {
       result: {
         deep: true,
-        handler(v) {
-          this.updateResult(v)
+        handler(newResult) {
+          this.updateResult(newResult)
         }
       }
     },
@@ -81,9 +81,9 @@
       closeDeletePopup() {
         this.isDeletePopupShown = !this.isDeletePopupShown
       },
-      updateResult(v) {
-        if (v) {
-          this.$store.dispatch('formOutput/updateResult', v)
+      updateResult(newResult) {
+        if (newResult) {
+          this.$store.dispatch('formOutput/updateResult', newResult)
         }
       },
       addStep() {

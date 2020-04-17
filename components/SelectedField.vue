@@ -45,10 +45,6 @@
         <Input v-model="field.subjects" type="textarea" :autosize="{minRows: 2,maxRows: 5}"
                placeholder="(Comma separated field:data_type values e.g age:number, dob:map)"></Input>
       </FormItem>
-      <FormItem label="Validation" prop="validation">
-        <!--        <Input v-model="formValidate.validation" type="textarea" :autosize="{minRows: 2,maxRows: 5}"-->
-        <!--               placeholder="Validation(s) performed on the field; separated by semicolon"></Input>-->
-      </FormItem>
       <FormItem label="" prop="isRequired">
         <Checkbox v-model="field.isRequired">Required?</Checkbox>
       </FormItem>
@@ -171,7 +167,7 @@
         this.validate = {}
         this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
-      deleteValidation(item, index){
+      deleteValidation(item, index) {
         this.step.fields[this.fieldIndex].validation.splice(index, 1)
         this.updateFormOutput(JSON.parse(JSON.stringify(this.step.fields)))
       },
