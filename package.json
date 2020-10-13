@@ -11,6 +11,7 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "faker": "^4.1.0",
     "iview": "^3.1.5",
     "nuxt": "^2.0.0",
     "vuedraggable": "^2.23.2"
